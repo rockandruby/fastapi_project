@@ -2,12 +2,14 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 from app.database import get_session
 from sqlmodel import Session
+from typing import Annotated
 import jwt
 from datetime import datetime, timezone, timedelta
 from app.settings import SECRET_KEY, ALGORITHM
 from app.models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+SessionDep = Annotated[Session, Depends(get_session)]
 
 def sync_http_client(request: Request):
     return request.app.state.sync_client
@@ -30,7 +32,7 @@ def decode_access_token(access_token):
     except jwt.InvalidTokenError:
         return None
 
-def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
+def get_current_user(session: SessionDep, token: str = Depends(oauth2_scheme)):
     payload = decode_access_token(token)
 
     if not payload:
@@ -42,3 +44,5 @@ def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Dep
         raise HTTPException(status_code=401, detail="User not authorized")
 
     return user
+
+CurrentUserDep = Annotated[User, Depends(get_current_user)]

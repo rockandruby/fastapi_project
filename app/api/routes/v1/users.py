@@ -3,20 +3,18 @@ from app.database import get_session
 from sqlmodel import Session, select
 from app.models.user import User
 import app.schemas.user as user_schema
-from app.api.deps import get_current_user
+from app.api.deps import CurrentUserDep, SessionDep
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get("/", response_model=list[user_schema.UserIndex])
-def read_users(session: Session = Depends(get_session)):
+def read_users(session: SessionDep):
     statement = select(User)
     users = session.exec(statement).all()
     return users
 
 @router.post("/", response_model=user_schema.UserCreate)
-def create_user(user_data: user_schema.UserCreate,
-                session: Session = Depends(get_session),
-                current_user: User = Depends(get_current_user)):
+def create_user(user_data: user_schema.UserCreate, session: SessionDep, current_user: CurrentUserDep):
     entry = User(**user_data.model_dump(exclude_unset=True))
 
     session.add(entry)
@@ -26,7 +24,7 @@ def create_user(user_data: user_schema.UserCreate,
     return entry
 
 @router.get("/{id}", response_model=user_schema.UserShow)
-def show_user(id: int, session: Session = Depends(get_session)):
+def show_user(id: int, session: SessionDep):
     entry = session.get(User, id)
     if not entry:
         raise HTTPException(status_code=404, detail="User not found")
@@ -34,9 +32,7 @@ def show_user(id: int, session: Session = Depends(get_session)):
     return entry
 
 @router.patch("/{id}", response_model=user_schema.UserShow)
-def update_user(id: int, user_data: user_schema.UserUpdate,
-                session: Session = Depends(get_session),
-                current_user: User = Depends(get_current_user)):
+def update_user(id: int, user_data: user_schema.UserUpdate, session: SessionDep, current_user: CurrentUserDep):
     entry = session.get(User, id)
     if not entry:
         raise HTTPException(status_code=404, detail="User not found")
@@ -47,7 +43,7 @@ def update_user(id: int, user_data: user_schema.UserUpdate,
     return entry
 
 @router.delete("/{id}")
-def delete_user(id: int, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+def delete_user(id: int, session: SessionDep, current_user: CurrentUserDep):
     entry = session.get(User, id)
     session.delete(entry)
     session.commit()
