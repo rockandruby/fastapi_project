@@ -50,4 +50,4 @@ jobs:
           MYSQL_PASSWORD: rootpassword
           MYSQL_DATABASE: test_db
         run: |
-          uv run pytest tests/api
+          uv run pytest tests/api --color=yes

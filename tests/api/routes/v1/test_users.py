@@ -56,5 +56,5 @@ def test_delete_user(db_session, client, auth_header):
     r = client.get(f"{API_V1_PREFIX}/users/")
     all_users = r.json()
 
-    assert r.status_code == 203
+    assert r.status_code == 200
     assert len(all_users) == 0
