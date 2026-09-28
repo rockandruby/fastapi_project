@@ -20,7 +20,6 @@ def create_order(order_data: order_schema.OrderCreate, session: SessionDep, curr
 
     session.add(entry)
     session.commit()
-    session.refresh(entry)
 
     return entry
 
@@ -44,7 +43,6 @@ def update_order(id: int, order_data: order_schema.OrderUpdate, session: Session
         raise HTTPException(status_code=404, detail="Order not found")
     order.sqlmodel_update(order_data.model_dump(exclude_unset=True))
     session.commit()
-    session.refresh(order)
 
     return order
 
