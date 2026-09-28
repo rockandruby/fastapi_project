@@ -8,6 +8,5 @@ def create_order(session, user, data: dict | None = None) -> Order:
     order.user = user
     session.add(order)
     session.commit()
-    session.refresh(order)
 
     return order

@@ -19,7 +19,6 @@ def create_user(user_data: user_schema.UserCreate, session: SessionDep, current_
 
     session.add(entry)
     session.commit()
-    session.refresh(entry)
 
     return entry
 
@@ -38,7 +37,6 @@ def update_user(id: int, user_data: user_schema.UserUpdate, session: SessionDep,
         raise HTTPException(status_code=404, detail="User not found")
     entry.sqlmodel_update(user_data.model_dump(exclude_unset=True))
     session.commit()
-    session.refresh(entry)
 
     return entry
 
